@@ -1,0 +1,38 @@
+<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+    <div class="container">
+        <a class="navbar-brand" href="/">{{ brand }}</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsMenu" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div id="navbarsMenu" class="collapse navbar-collapse">
+            <ul class="navbar-nav nav mr-auto"></ul>
+            <ul class="navbar-nav navbar-right nav">
+                {{# if identity }}
+                <li class="nav-item dropdown">
+                    <a class="dropdown-toggle" href="#" data-toggle="dropdown">
+                        <strong>{{ identity.name }}</strong>
+                        <img class="img-rounded avatar" src="{{gravatar_url user.gravatar_email }}"
+                             alt="{{ user.name }}"><!--<small>@{{ identity.id }}</small>--> <span class="caret"></span>
+                    </a>
+                    <ul id="user-options" class="dropdown-menu">
+                        <li><a href="/user/profile" tabindex="-1">{{t "Profile" }}</a></li>
+                        <li class="divider"></li>
+                        <li><a href="/user/logout" tabindex="-1">{{t "Log Out" }}</a></li>
+                    </ul>
+                </li>
+                {{ else }}
+                <li class="nav-item"><a class="nav-link" href="/user/login">{{t "Sign In" }}</a></li>
+                {{ /if }}
+
+                {{# if is_multi_lang }}
+                <li class="nav-item dropdown"><a class="dropdown-toggle" href="#" data-toggle="dropdown">{{t "EN" }} <span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/ru" tabindex="-1">{{t "RU" }}</a></li>
+                        <li><a href="/en" tabindex="-1">{{t "EN" }}</a></li>
+                    </ul>
+                </li>
+                {{ /if }}
+            </ul>
+        </div>
+    </div>
+</nav>

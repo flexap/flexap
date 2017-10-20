@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title }}</title>
+
+    <link href="/web/assets/font-awesome/css/font-awesome.min.css" rel="stylesheet">
+    <link href="/web/assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/web/css/main.css" rel="stylesheet">
+    {{> head_css }}
+
+    <script src="/web/assets/jquery/js/jquery.min.js"></script>
+</head>
+
+<body>
+<div class="wrap">
+    {{> nav_bar }}
+    {{> content }}
+</div>
+
+{{#if is_allow_footer}}
+{{> footer }}
+{{/if }}
+
+<script src="/web/assets/popper/js/popper.min.js"></script>
+<script src="/web/assets/bootstrap/js/bootstrap.min.js"></script>
+{{> body_js }}
+</body>
+</html>

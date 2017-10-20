@@ -1,0 +1,39 @@
+{{#> layout }}
+
+{{#* inline "head_css" ~}}
+{{~ /inline }}
+
+{{#* inline "body_js" ~}}
+{{~ /inline }}
+
+{{#* inline "content" ~}}
+<div class="container">
+    <form class="form-signin" enctype="application/x-www-form-urlencoded" method="post">
+        <h2 class="form-signin-heading">{{t "Please sign in" }}</h2>
+        {{# each errors }}
+        <div class="alert alert-danger" role="alert">{{t this }}</div>
+        {{ /each }}
+        <input type="hidden" name="csrf-token" value="{{ csrf_token }}">
+
+        <label for="login-input" class="sr-only">{{t "Login" }}</label>
+        <input type="text" id="login-input" class="form-control" name="login-form[login]"
+               placeholder="{{t "Login" }}" required autofocus>
+
+        <label for="password-input" class="sr-only">{{t "Password" }}</label>
+        <input type="password" id="password-input" class="form-control" name="login-form[password]"
+               placeholder="{{t "Password" }}" required>
+
+        <div class="checkbox">
+            <label>
+                <input type="checkbox" id="rememberme-input" name="login-form[rememberme]"
+                       value="rememberme"> {{t "Remember me" }}
+            </label>
+        </div>
+
+        <button class="btn btn-lg btn-primary btn-block" type="submit">{{t "Sign in" }}</button>
+    </form>
+</div>
+{{~ /inline }}
+
+{{ /layout }}
+

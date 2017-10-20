@@ -1,0 +1,18 @@
+app_name = "FlexAP"
+base_url = "127.0.0.1:3000"
+web_path = "web"
+
+[db]
+driver = "mysql"
+host = "127.0.0.1"
+
+[view]
+ext = ".hbs"
+templates_path = "src/view/templates"
+translator_helper_name = "t"
+gravatar_helper_name = "gravatar_url"
+
+[security]
+cookie_key = "VeryLONGSecRetKeyIn32bytes000000"
+csrf_protection_key = "anoThErVeryLONGSecRetKey32bytes0"
+csrf_token_ttl_seconds = 1800
