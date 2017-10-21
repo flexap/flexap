@@ -6,12 +6,14 @@ use hyper::Uri;
 
 use std::collections::HashMap;
 
+pub type BodyContent = HashMap<String, String>;
+
 pub struct RequestContext
 {
     pub uri: Uri,
     pub method: Method,
     pub headers: Headers,
-    pub body: Option<HashMap<String, String>>,
+    pub body: Option<BodyContent>,
     pub csrf_token: Option<String>
 }
 

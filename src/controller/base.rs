@@ -3,17 +3,14 @@ use handlebars::JsonRender;
 use handlebars::to_json;
 use serde_json::value::Map;
 
-use hyper::server::Request;
 use hyper::server::Response;
 use hyper::header::Header;
 use hyper::header::Location;
 use hyper::header::ContentLength;
 use hyper::header::ContentType;
 use hyper::StatusCode;
-use hyper::Body;
 use mime;
 
-use std::mem::replace;
 use std::error::Error;
 
 use view::renderer::Renderer;
@@ -92,13 +89,4 @@ pub fn replacements(request: &RequestContext) -> Result<Map<String, Value>, Box<
     }
 
     Ok(replacements)
-}
-
-pub fn extract_body(request: Request) -> (Body, Request)
-{
-    let (method, uri, version, headers, body) = request.deconstruct();
-    let mut request = Request::new(method, uri);
-    request.set_version(version);
-    replace(request.headers_mut(), headers);
-    (body, request)
 }
