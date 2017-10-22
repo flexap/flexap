@@ -16,16 +16,16 @@
         <input type="hidden" name="csrf-token" value="{{ csrf_token }}">
 
         <label for="login-input" class="sr-only">{{t "Login" }}</label>
-        <input type="text" id="login-input" class="form-control" name="login-form[login]"
+        <input type="text" id="login-input" class="form-control" name="{{ form_name }}[login]"
                placeholder="{{t "Login" }}" required autofocus>
 
         <label for="password-input" class="sr-only">{{t "Password" }}</label>
-        <input type="password" id="password-input" class="form-control" name="login-form[password]"
+        <input type="password" id="password-input" class="form-control" name="{{ form_name }}[password]"
                placeholder="{{t "Password" }}" required>
 
         <div class="checkbox">
             <label>
-                <input type="checkbox" id="rememberme-input" name="login-form[rememberme]"
+                <input type="checkbox" id="rememberme-input" name="{{ form_name }}[rememberme]"
                        value="rememberme"> {{t "Remember me" }}
             </label>
         </div>

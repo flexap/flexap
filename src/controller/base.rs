@@ -30,6 +30,11 @@ pub fn main_redirect_response() -> Response
     redirect("/")
 }
 
+pub fn is_logined(request: &RequestContext) -> bool
+{
+    false
+}
+
 //pub fn get_tail_param(request: &Request, validator: Validator) -> Option<String>
 //{
 //    if let Some(param) = request.path().rsplit('/').next() {
@@ -40,15 +45,14 @@ pub fn main_redirect_response() -> Response
 //    None
 //}
 
-pub fn error_response(msg: String) -> Response
-{
-    let response = Response::new()
-        .with_header(ContentLength(msg.len() as u64))
-        .with_body(msg);
-    response.with_status(StatusCode::InternalServerError)
-}
+//pub fn error_response(msg: String) -> Response
+//{
+//    let response = Response::new()
+//        .with_header(ContentLength(msg.len() as u64))
+//        .with_body(msg);
+//    response.with_status(StatusCode::InternalServerError)
+//}
 
-#[allow(dead_code)]
 pub fn render<A>(request: &RequestContext, action: A) -> Response
     where A: Fn(&RequestContext, &mut Map<String, Value>) -> Result<String, Box<Error>>
 {

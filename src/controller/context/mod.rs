@@ -42,4 +42,9 @@ impl RequestContext
             None
         }
     }
+
+    pub fn is_post(&self) -> bool
+    {
+        self.method == Method::Post
+    }
 }
