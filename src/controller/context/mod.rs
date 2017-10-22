@@ -1,8 +1,10 @@
 use hyper::Request;
 use hyper::Body;
+use hyper::header::ContentType;
 use hyper::header::Headers;
 use hyper::Method;
 use hyper::Uri;
+use mime::Mime;
 
 use std::collections::HashMap;
 
@@ -30,5 +32,14 @@ impl RequestContext
             body: None,
             csrf_token: None
         }, body)
+    }
+
+    pub fn content_type(&self) -> Option<&Mime>
+    {
+        if let Some(&ContentType(ref mime)) = self.headers.get() {
+            Some(mime)
+        } else {
+            None
+        }
     }
 }

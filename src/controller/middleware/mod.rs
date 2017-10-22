@@ -5,7 +5,6 @@ use futures::future;
 use hyper::server::Response;
 use hyper::Body;
 use hyper::Chunk;
-use hyper::Headers;
 use hyper::header::ContentType;
 use mime;
 
@@ -23,26 +22,26 @@ pub fn around<F>(mut request: RequestContext, body: Body, seed: F) -> BoxFutureR
     Box::new(body
         .concat2()
         .and_then(|body_data| {
-            request.body = parse_body(&request.headers, body_data);
+            request.body = parse_body(request.content_type(), body_data);
 
             future::ok(csrf_protection(request, seed))
         })
     )
 }
 
-fn parse_body(headers: &Headers, body_data: Chunk) -> Option<BodyContent>
+fn parse_body(content_type: Option<&mime::Mime>, body_data: Chunk) -> Option<BodyContent>
 {
     if body_data.is_empty() {
         None
     } else {
-        let is_multipart_form_data = if let Some(&ContentType(ref content_mime)) = headers.get::<ContentType>() {
+        let is_multipart_form_data = if let Some(ref content_mime) = content_type {
             content_mime.type_() == mime::MULTIPART && content_mime.subtype() == mime::FORM_DATA
         } else {
             false
         };
 
         let body_parsed = if is_multipart_form_data {
-            parse_multipart_form_data(headers, body_data)
+            parse_multipart_form_data(content_type, body_data)
         } else {
             parse_form_urlencoded(body_data)
         };
@@ -62,17 +61,17 @@ fn parse_form_urlencoded(body_data: Chunk) -> BodyContent
 // TODO: realize this function
 // https://github.com/abonander/multipart-async
 // https://ru.wikipedia.org/wiki/HTTP#Множественное_содержимое
-fn parse_multipart_form_data(headers: &Headers, body_data: Chunk) -> BodyContent
+fn parse_multipart_form_data(content_type: Option<&mime::Mime>, body_data: Chunk) -> BodyContent
 {
-    if let Some(boundary) = get_boundary(headers) {
+    if let Some(boundary) = get_boundary(content_type) {
         println!("multipart request received, boundary: {}", boundary);
     }
     parse_form_urlencoded(body_data) // TODO: this is stub
 }
 
-fn get_boundary(headers: &Headers) -> Option<String> {
-    headers.get::<ContentType>()
-        .and_then(|&ContentType(ref mime)| {
-            mime.get_param(mime::BOUNDARY).map(|n|n.as_ref().into())
+fn get_boundary(content_type: Option<&mime::Mime>) -> Option<String> {
+    content_type
+        .and_then(|content_mime| {
+            content_mime.get_param(mime::BOUNDARY).map(|boundary|boundary.as_ref().into())
         })
 }
