@@ -23,6 +23,8 @@ fn main()
         // Bootstrap 4
         "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"
             => "web/assets/bootstrap/css/bootstrap.min.css",
+        "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css.map"
+            => "web/assets/bootstrap/css/bootstrap.min.css.map",
         "https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"
             => "web/assets/bootstrap/js/bootstrap.min.js",
 
