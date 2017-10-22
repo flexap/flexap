@@ -7,6 +7,7 @@ use super::base;
 use config::Config;
 use controller::context::RequestContext;
 use controller::dto::LoginFormDto;
+use model::service::db;
 
 pub fn home(request: RequestContext) -> Response
 {
@@ -19,17 +20,24 @@ pub fn home(request: RequestContext) -> Response
 
 pub fn login(request: RequestContext) -> Response
 {
-    let mut errors: Vec<String> = vec![];
-    let mut is_logined = base::is_logined(&request);
-
-    if !is_logined && request.is_post() && request.body.is_some() {
-        let login_form_dto = LoginFormDto::from(request.body.as_ref().unwrap());
-
-        is_logined = true;
+    if base::is_logined(&request) {
+        return base::main_redirect_response()
     }
 
-    if is_logined {
-        return base::main_redirect_response()
+    let mut errors: Vec<String> = vec![];
+
+    if request.is_post() && request.body.is_some() {
+        let user = LoginFormDto::from(request.body.as_ref().unwrap()).user();
+        match db::list(&user) {
+            Ok(db_list) => {
+                if db_list.len() > 0 {
+                    return base::redirect(&format!("/db/{}", db_list[0]));
+                } else {
+                    return base::main_redirect_response()
+                }
+            },
+            Err(error) => errors.push(format!("{}", error))
+        }
     }
 
     base::render(&request, |_request, replacements| {

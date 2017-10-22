@@ -1,4 +1,5 @@
 use controller::context::BodyContent;
+use model::entity::User;
 
 #[derive(Default, Debug)]
 pub struct LoginFormDto
@@ -18,6 +19,14 @@ impl LoginFormDto
     pub fn is_none(&self) -> bool
     {
         self.login.is_empty() || self.password.is_empty()
+    }
+
+    pub fn user(self) -> User
+    {
+        User {
+            name: self.login,
+            password: self.password
+        }
     }
 }
 

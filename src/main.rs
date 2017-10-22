@@ -16,9 +16,12 @@ extern crate toml;
 extern crate walkdir;
 #[macro_use]
 extern crate maplit;
+#[macro_use]
+extern crate diesel;
 
 mod config;
 mod controller;
+mod model;
 mod view;
 
 use config::Config;
