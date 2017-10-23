@@ -11,7 +11,7 @@ use curl::easy::Easy;
 
 fn main()
 {
-    let downloads = hashmap!{
+    let downloads = hashmap! {
         // JQuery
         "https://code.jquery.com/jquery-3.2.1.min.js"
             => "web/assets/jquery/js/jquery.min.js",

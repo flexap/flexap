@@ -5,9 +5,13 @@ use hyper::header::ContentLength;
 use hyper::server::{Service, Request, Response};
 use hyper::StatusCode;
 use hyper::Method;
+use regex::Regex;
+
+use std::collections::HashMap;
 
 use controller::context::RequestContext;
 use controller::middleware::around;
+use controller::db;
 use controller::user;
 
 pub type BoxFutureResponse = Box<Future<Item=Response, Error=Error>>;
@@ -31,22 +35,26 @@ impl RouterService
     }
 }
 
+lazy_static! {
+    static ref REGEX_ROUTES: HashMap<&'static str, Regex> = hashmap! {
+        "/db/{name}" => Regex::new("/db/[^/]+/?$").unwrap()
+    };
+}
+
 pub trait Route
 {
     fn is_match(&self, pattern: &str) -> bool;
-    fn is_equal(&self, route: &str) -> bool;
 }
 
 impl Route for String
 {
-    fn is_match(&self, pattern: &str) -> bool
+    fn is_match(&self, route: &str) -> bool
     {
-        unimplemented!()
-    }
-
-    fn is_equal(&self, route: &str) -> bool
-    {
-        self == route
+        if let Some(regex) = REGEX_ROUTES.get(route) {
+            regex.is_match(self.as_str())
+        } else {
+            self == route
+        }
     }
 }
 
@@ -63,9 +71,10 @@ impl Service for RouterService
         let uri = request.uri.path().to_string();
 
         match request.method.clone() {
-            Method::Get if uri.is_equal("/") => around(request, body, user::home),
-            Method::Get if uri.is_equal("/user/login") => around(request, body, user::login),
-            Method::Post if uri.is_equal("/user/login") => around(request, body, user::login),
+            Method::Get if uri.is_match("/") => around(request, body, user::home),
+            Method::Get if uri.is_match("/db/{name}") => around(request, body, db::index),
+            Method::Get if uri.is_match("/user/login") => around(request, body, user::login),
+            Method::Post if uri.is_match("/user/login") => around(request, body, user::login),
             _ => Box::new(future::ok(
                 RouterService::error_handler(StatusCode::NotFound)
             ))

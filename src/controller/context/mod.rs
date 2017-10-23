@@ -5,6 +5,7 @@ use hyper::header::Headers;
 use hyper::Method;
 use hyper::Uri;
 use mime::Mime;
+use url::percent_encoding::percent_decode;
 
 use std::collections::HashMap;
 
@@ -46,5 +47,18 @@ impl RequestContext
     pub fn is_post(&self) -> bool
     {
         self.method == Method::Post
+    }
+
+    pub fn uri_path_chunks(&self) -> Vec<String>
+    {
+        self.uri.path()[1..]
+            .split('/')
+            .map(|name| {
+                match percent_decode(name.as_bytes()).decode_utf8() {
+                    Ok(decoded) => decoded.to_string(),
+                    Err(_) => name.to_string()
+                }
+            })
+            .collect()
     }
 }

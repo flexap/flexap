@@ -18,6 +18,7 @@ extern crate walkdir;
 extern crate maplit;
 #[macro_use]
 extern crate diesel;
+extern crate regex;
 
 mod config;
 mod controller;

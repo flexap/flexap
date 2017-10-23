@@ -42,11 +42,11 @@ pub fn login(request: RequestContext) -> Response
 
     base::render(&request, |_request, replacements| {
         let title = format!("{} - {}", Config::idem().app_name, "Sign In");
-        replacements.insert("title".to_owned(), to_json_value(title)?);
-        replacements.insert("form_name".to_owned(), to_json_value(LoginFormDto::form_name())?);
+        replacements.insert("title".to_string(), to_json_value(title)?);
+        replacements.insert("form_name".to_string(), to_json_value(LoginFormDto::form_name())?);
 
         replacements.insert(
-            "errors".to_owned(),
+            "errors".to_string(),
             to_json_value(&errors)?
         );
 
