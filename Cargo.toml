@@ -1,6 +1,6 @@
 [package]
 name = "flexap"
-version = "0.2.0"
+version = "0.2.5"
 authors = ["XX <freecoder.xx@gmail.com>"]
 
 exclude = [
@@ -12,15 +12,17 @@ exclude = [
 futures = "0.1"
 hyper = "0.11"
 url = "1.5"
-csrf = "0.2"
+ring = "0.12"
+csrf = { git = "https://github.com/XX/rust-csrf", branch = "develop" }
+jsonwebtoken = "3"
+rust-crypto = "0.2"
 data-encoding = "1.2"
 handlebars = "0.29"
 diesel = { version = "0.16", features = ["mysql"] }
 lazy_static = "0.2"
-rust-crypto = "0.2"
-serde = "~1"
-serde_derive = "~1"
-serde_json = "~1"
+serde = "1"
+serde_derive = "1"
+serde_json = "1"
 toml = "0.4"
 walkdir = "1"
 maplit = "0.1"

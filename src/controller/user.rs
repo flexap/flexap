@@ -1,11 +1,11 @@
 use hyper::server::Response;
-
 use serde_json::value::to_value as to_json_value;
+
 use std::error::Error;
 
 use super::base;
 use config::Config;
-use controller::context::RequestContext;
+use controller::context::{RequestContext, ResponseContext};
 use controller::dto::LoginFormDto;
 use model::service::db;
 
@@ -30,11 +30,13 @@ pub fn login(request: RequestContext) -> Response
         let user = LoginFormDto::from(request.body.as_ref().unwrap()).user();
         match db::list(&user) {
             Ok(db_list) => {
-                if db_list.len() > 0 {
-                    return base::redirect(&format!("/db/{}", db_list[0]));
+                let mut response = if db_list.len() > 0 {
+                    base::redirect(&format!("/db/{}", db_list[0]))
                 } else {
-                    return base::main_redirect_response()
-                }
+                    base::main_redirect_response()
+                };
+                response.set_to_jwt(&user);
+                return response;
             },
             Err(error) => errors.push(format!("{}", error))
         }

@@ -7,6 +7,7 @@ extern crate url;
 extern crate mime;
 extern crate handlebars;
 extern crate crypto;
+extern crate jsonwebtoken as jwt;
 extern crate csrf;
 extern crate data_encoding;
 #[macro_use]
