@@ -30,11 +30,6 @@ pub fn main_redirect_response() -> Response
     redirect("/")
 }
 
-pub fn is_logined(request: &RequestContext) -> bool
-{
-    false
-}
-
 //pub fn get_tail_param(request: &Request, validator: Validator) -> Option<String>
 //{
 //    if let Some(param) = request.path().rsplit('/').next() {

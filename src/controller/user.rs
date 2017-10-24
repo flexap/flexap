@@ -11,7 +11,7 @@ use model::service::db;
 
 pub fn home(request: RequestContext) -> Response
 {
-    if base::is_logined(&request) {
+    if let Some(_user) = request.user() {
         base::redirect("/db/")
     } else {
         base::redirect("/user/login")
@@ -20,7 +20,7 @@ pub fn home(request: RequestContext) -> Response
 
 pub fn login(request: RequestContext) -> Response
 {
-    if base::is_logined(&request) {
+    if request.user().is_some() {
         return base::main_redirect_response()
     }
 
@@ -35,7 +35,7 @@ pub fn login(request: RequestContext) -> Response
                 } else {
                     base::main_redirect_response()
                 };
-                response.set_to_jwt(&user);
+                response.set_user(&user);
                 return response;
             },
             Err(error) => errors.push(format!("{}", error))

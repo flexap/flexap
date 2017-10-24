@@ -8,7 +8,8 @@ use model::service::db;
 
 pub fn index(request: RequestContext) -> Response
 {
-    if !base::is_logined(&request) {
+    let user = request.user();
+    if user.is_none() {
         return base::redirect("/user/login");
     }
 

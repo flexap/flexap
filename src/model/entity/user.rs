@@ -1,5 +1,5 @@
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Default, Debug, Serialize, Deserialize)]
 pub struct User
 {
     pub name: String,

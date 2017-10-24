@@ -1,5 +1,5 @@
 use hyper::{Request, Response, Body, Method, Uri};
-use hyper::header::{ContentType, Headers, SetCookie};
+use hyper::header::{ContentType, Headers, Cookie, SetCookie};
 use mime::Mime;
 use url::percent_encoding::percent_decode;
 use jwt::{encode, decode, Header, Algorithm, Validation};
@@ -61,16 +61,34 @@ impl RequestContext
             })
             .collect()
     }
+
+    pub fn user(&self) -> Option<User>
+    {
+        if let Some(ref cookie) = self.headers.get::<Cookie>() {
+            let token = cookie.get("jwt").unwrap_or("");
+            if !token.is_empty() {
+                let key = Config::idem().security.cookie_key.as_ref();
+
+                match decode::<User>(token, key, &Validation::default()) {
+                    Ok(token_data) => {
+                        return Some(token_data.claims);
+                    },
+                    Err(error) => println!("Error jwt decode: {:?}", error)
+                }
+            }
+        }
+        None
+    }
 }
 
 pub trait ResponseContext
 {
-    fn set_to_jwt(&mut self, user: &User) -> bool;
+    fn set_user(&mut self, user: &User) -> bool;
 }
 
 impl ResponseContext for Response
 {
-    fn set_to_jwt(&mut self, user: &User) -> bool
+    fn set_user(&mut self, user: &User) -> bool
     {
         let header = Header::default();
         let key = Config::idem().security.cookie_key.as_ref();
