@@ -1,3 +1,5 @@
+pub mod route;
+
 use futures::Future;
 use futures::future;
 use hyper::Error;
@@ -5,14 +7,12 @@ use hyper::header::ContentLength;
 use hyper::server::{Service, Request, Response};
 use hyper::StatusCode;
 use hyper::Method;
-use regex::Regex;
-
-use std::collections::HashMap;
 
 use controller::context::RequestContext;
 use controller::middleware::around;
 use controller::db;
 use controller::user;
+use self::route::Route;
 
 pub type BoxFutureResponse = Box<Future<Item=Response, Error=Error>>;
 
@@ -31,29 +31,6 @@ impl RouterService
         match status_code {
             StatusCode::NotFound => response.with_status(StatusCode::NotFound),
             _ => response.with_status(StatusCode::InternalServerError)
-        }
-    }
-}
-
-lazy_static! {
-    static ref REGEX_ROUTES: HashMap<&'static str, Regex> = hashmap! {
-        "/db/{name}" => Regex::new("/db/[^/]+/?$").unwrap()
-    };
-}
-
-pub trait Route
-{
-    fn is_match(&self, pattern: &str) -> bool;
-}
-
-impl Route for String
-{
-    fn is_match(&self, route: &str) -> bool
-    {
-        if let Some(regex) = REGEX_ROUTES.get(route) {
-            regex.is_match(self.as_str())
-        } else {
-            self == route
         }
     }
 }

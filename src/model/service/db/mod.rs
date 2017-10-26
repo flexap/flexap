@@ -1,7 +1,8 @@
 use diesel::prelude::*;
 use diesel::mysql::MysqlConnection;
-use diesel::expression::sql;
+use diesel::expression::sql_literal::sql;
 use diesel::types::Text;
+use url::percent_encoding::{percent_encode, USERINFO_ENCODE_SET};
 
 use model::error::Error;
 
@@ -10,11 +11,12 @@ use model::entity::User;
 
 pub fn connection(user: &User) -> Result<MysqlConnection, Error>
 {
-    let connection_url = format!("{}://{}:{}@{}/",
-                                 Config::idem().db.driver,
-                                 user.name,
-                                 user.password,
-                                 Config::idem().db.host
+    let connection_url = format!(
+        "{}://{}:{}@{}/",
+        Config::idem().db.driver,
+        percent_encode(user.name.as_ref(), USERINFO_ENCODE_SET),
+        percent_encode(user.password.as_ref(), USERINFO_ENCODE_SET),
+        Config::idem().db.host
     );
 
     MysqlConnection::establish(&connection_url)
