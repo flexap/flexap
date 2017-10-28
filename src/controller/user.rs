@@ -1,7 +1,4 @@
-use hyper::server::Response;
 use serde_json::value::to_value as to_json_value;
-
-use std::error::Error;
 
 use super::base;
 use config::Config;
@@ -9,18 +6,18 @@ use controller::context::{RequestContext, ResponseContext};
 use controller::dto::LoginFormDto;
 use model::service::db;
 
-pub fn home(request: RequestContext) -> Response
+pub fn home(request: RequestContext) -> ResponseContext
 {
-    if let Some(_user) = request.user() {
+    if let Some(_user) = request.user.as_ref() {
         base::redirect("/db/")
     } else {
         base::redirect("/user/login")
     }
 }
 
-pub fn login(request: RequestContext) -> Response
+pub fn login(request: RequestContext) -> ResponseContext
 {
-    if request.user().is_some() {
+    if request.user.is_some() {
         return base::main_redirect_response()
     }
 
@@ -35,7 +32,7 @@ pub fn login(request: RequestContext) -> Response
                 } else {
                     base::main_redirect_response()
                 };
-                response.set_user(&user);
+                response.user = Some(user);
                 return response;
             },
             Err(error) => errors.push(format!("{}", error))
@@ -54,4 +51,13 @@ pub fn login(request: RequestContext) -> Response
 
         Ok("user/login".to_owned())
     })
+}
+
+pub fn logout(request: RequestContext) -> ResponseContext
+{
+    let mut response = base::main_redirect_response();
+    if request.user.is_some() {
+        response.clean_user = true;
+    }
+    response
 }

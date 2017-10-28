@@ -1,14 +1,13 @@
-use hyper::server::Response;
 use serde_json::value::to_value as to_json_value;
 
 use super::base;
 use config::Config;
-use controller::context::RequestContext;
+use controller::context::{RequestContext, ResponseContext};
 use model::service::db;
 
-pub fn index(request: RequestContext) -> Response
+pub fn index(request: RequestContext) -> ResponseContext
 {
-    let user = request.user();
+    let user = request.user.as_ref();
     if user.is_none() {
         return base::redirect("/user/login");
     }

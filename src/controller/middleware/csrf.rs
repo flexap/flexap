@@ -1,20 +1,17 @@
-use hyper::server::Response;
-use csrf::CSRF_HEADER;
-use csrf::AesGcmCsrfProtection;
-use csrf::CsrfProtection;
+use csrf::{AesGcmCsrfProtection, CsrfProtection, CSRF_HEADER};
 //use data_encoding::BASE64;
 
 use config::Config;
-use controller::context::RequestContext;
+use controller::context::{RequestContext, ResponseContext};
+use controller::middleware::user::user_session;
 
 use std::str;
 
 header! { (XCsrfHeader, CSRF_HEADER) => [String] }
 
-pub fn csrf_protection<F>(mut request: RequestContext, seed: F) -> Response
-    where F: Fn(RequestContext) -> Response
+pub fn csrf_protection<F>(mut request: RequestContext, seed: F) -> ResponseContext
+    where F: Fn(RequestContext) -> ResponseContext
 {
-
     if let Some(csrf_header) = request.headers.get::<XCsrfHeader>() {
         let &XCsrfHeader(ref csrf) = csrf_header;
         println!("Incoming csrf header: {:?}", csrf);
@@ -27,7 +24,7 @@ pub fn csrf_protection<F>(mut request: RequestContext, seed: F) -> Response
     let (token, cookie) = new_token_pair(None);
     request.csrf_token = Some(token);
 
-    let mut response = seed(request);
+    let response = user_session(request, seed);
     response
 }
 

@@ -7,18 +7,15 @@
         <div id="navbarsMenu" class="collapse navbar-collapse">
             <ul class="navbar-nav nav mr-auto"></ul>
             <ul class="navbar-nav navbar-right nav">
-                {{# if identity }}
+                {{# if user }}
                 <li class="nav-item dropdown">
-                    <a class="dropdown-toggle" href="#" data-toggle="dropdown">
-                        <strong>{{ identity.name }}</strong>
-                        <img class="img-rounded avatar" src="{{gravatar_url user.gravatar_email }}"
-                             alt="{{ user.name }}"><!--<small>@{{ identity.id }}</small>--> <span class="caret"></span>
+                    <a id="dropdownUserMenuLink" class="nav-link dropdown-toggle" href="#"
+                       role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <strong>{{ user.name }}</strong>
                     </a>
-                    <ul id="user-options" class="dropdown-menu">
-                        <li><a href="/user/profile" tabindex="-1">{{t "Profile" }}</a></li>
-                        <li class="divider"></li>
-                        <li><a href="/user/logout" tabindex="-1">{{t "Log Out" }}</a></li>
-                    </ul>
+                    <div class="dropdown-menu" aria-labelledby="dropdownUserMenuLink">
+                        <a class="dropdown-item" href="/user/logout" tabindex="-1">{{t "Log Out" }}</a>
+                    </div>
                 </li>
                 {{ else }}
                 <li class="nav-item"><a class="nav-link" href="/user/login">{{t "Sign In" }}</a></li>

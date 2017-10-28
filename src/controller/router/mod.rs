@@ -52,6 +52,7 @@ impl Service for RouterService
             Method::Get if uri.is_match("/db/{name}") => around(request, body, db::index),
             Method::Get if uri.is_match("/user/login") => around(request, body, user::login),
             Method::Post if uri.is_match("/user/login") => around(request, body, user::login),
+            Method::Get if uri.is_match("/user/logout") => around(request, body, user::logout),
             _ => Box::new(future::ok(
                 RouterService::error_handler(StatusCode::NotFound)
             ))

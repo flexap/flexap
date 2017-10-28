@@ -1,6 +1,5 @@
 use url::form_urlencoded;
 use hyper::Chunk;
-use hyper::header::ContentType;
 use mime;
 
 use controller::context::BodyContent;

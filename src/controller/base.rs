@@ -1,13 +1,8 @@
-use serde_json::value::Value;
-use handlebars::JsonRender;
+use serde_json::value::{Map, Value};
 use handlebars::to_json;
-use serde_json::value::Map;
 
 use hyper::server::Response;
-use hyper::header::Header;
-use hyper::header::Location;
-use hyper::header::ContentLength;
-use hyper::header::ContentType;
+use hyper::header::{ContentLength, ContentType, Header, Location};
 use hyper::StatusCode;
 use mime;
 
@@ -15,17 +10,19 @@ use std::error::Error;
 
 use view::renderer::Renderer;
 use config::Config;
-use controller::context::RequestContext;
+use controller::context::{RequestContext, ResponseContext};
 
-pub fn redirect(url: &str) -> Response
+pub fn redirect(url: &str) -> ResponseContext
 {
     let raw_url = url.into();
-    Response::new()
-        .with_status(StatusCode::Found)
-        .with_header(Location::parse_header(&raw_url).unwrap_or(Location::new("/")))
+    ResponseContext::from_response(
+        Response::new()
+            .with_status(StatusCode::Found)
+            .with_header(Location::parse_header(&raw_url).unwrap_or(Location::new("/")))
+    )
 }
 
-pub fn main_redirect_response() -> Response
+pub fn main_redirect_response() -> ResponseContext
 {
     redirect("/")
 }
@@ -48,7 +45,7 @@ pub fn main_redirect_response() -> Response
 //    response.with_status(StatusCode::InternalServerError)
 //}
 
-pub fn render<A>(request: &RequestContext, action: A) -> Response
+pub fn render<A>(request: &RequestContext, action: A) -> ResponseContext
     where A: Fn(&RequestContext, &mut Map<String, Value>) -> Result<String, Box<Error>>
 {
     let mut response = Response::new();
@@ -69,7 +66,9 @@ pub fn render<A>(request: &RequestContext, action: A) -> Response
     };
     let result = result.as_bytes().to_vec();
     response.headers_mut().set(ContentLength(result.len() as u64));
-    response.with_body(result)
+    ResponseContext::from_response(
+        response.with_body(result)
+    )
 }
 
 pub fn replacements(request: &RequestContext) -> Result<Map<String, Value>, Box<Error>>
@@ -82,9 +81,12 @@ pub fn replacements(request: &RequestContext) -> Result<Map<String, Value>, Box<
     replacements.insert("lang".to_owned(), to_json(lang));
 
     if let Some(ref token) = request.csrf_token {
-        println!("New csrf token: {:?}", token);
         replacements.insert("csrf_token".to_owned(), to_json(token));
         //    replacements.insert("csrf_url_token".to_owned(), to_json(&url_token));
+    }
+
+    if let Some(ref user) = request.user {
+        replacements.insert("user".to_owned(), to_json(user));
     }
 
     Ok(replacements)
