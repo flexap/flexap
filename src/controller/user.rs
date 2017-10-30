@@ -8,8 +8,23 @@ use model::service::DbService;
 
 pub fn home(request: RequestContext) -> ResponseContext
 {
-    if let Some(_user) = request.user.as_ref() {
-        base::redirect("/db/")
+    if let Some(user) = request.user.as_ref() {
+        let db = DbService::new(user);
+
+        match db.list() {
+            Ok(list) => {
+                if list.len() > 0 {
+                    base::redirect(&format!("/db/{}", list[0]))
+                } else {
+                    println!("ERROR user::home - db.list for user \"{}\" is empty", user.name);
+                    base::redirect("/error")
+                }
+            },
+            Err(error) => {
+                println!("ERROR user::home - {}", error);
+                base::redirect("/error")
+            }
+        }
     } else {
         base::redirect("/user/login")
     }
@@ -28,9 +43,9 @@ pub fn login(request: RequestContext) -> ResponseContext
         let db = DbService::new(&user);
 
         match db.list() {
-            Ok(db_list) => {
-                let mut response = if db_list.len() > 0 {
-                    base::redirect(&format!("/db/{}", db_list[0]))
+            Ok(list) => {
+                let mut response = if list.len() > 0 {
+                    base::redirect(&format!("/db/{}", list[0]))
                 } else {
                     base::main_redirect_response()
                 };
