@@ -3,7 +3,7 @@ use serde_json::value::to_value as to_json_value;
 use super::base;
 use config::Config;
 use controller::context::{RequestContext, ResponseContext};
-use model::service::db;
+use model::service::DbService;
 
 pub fn index(request: RequestContext) -> ResponseContext
 {

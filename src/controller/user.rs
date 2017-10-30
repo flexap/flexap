@@ -4,7 +4,7 @@ use super::base;
 use config::Config;
 use controller::context::{RequestContext, ResponseContext};
 use controller::dto::LoginFormDto;
-use model::service::db;
+use model::service::DbService;
 
 pub fn home(request: RequestContext) -> ResponseContext
 {
@@ -25,7 +25,9 @@ pub fn login(request: RequestContext) -> ResponseContext
 
     if request.is_post() && request.body.is_some() {
         let user = LoginFormDto::from(request.body.as_ref().unwrap()).user();
-        match db::list(&user) {
+        let db = DbService::new(&user);
+
+        match db.list() {
             Ok(db_list) => {
                 let mut response = if db_list.len() > 0 {
                     base::redirect(&format!("/db/{}", db_list[0]))

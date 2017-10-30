@@ -9,31 +9,46 @@ use model::error::Error;
 use config::Config;
 use model::entity::User;
 
-pub fn connection(user: &User) -> Result<MysqlConnection, Error>
+pub struct DbService
 {
-    let connection_url = format!(
-        "{}://{}:{}@{}/",
-        Config::idem().db.driver,
-        percent_encode(user.name.as_ref(), USERINFO_ENCODE_SET),
-        percent_encode(user.password.as_ref(), USERINFO_ENCODE_SET),
-        Config::idem().db.host
-    );
-
-    MysqlConnection::establish(&connection_url)
-        .map_err(|err| Error::from(err))
+    pub connection: MysqlConnection
 }
 
-pub fn list(user: &User) -> Result<Vec<String>, Error>
+impl DbService
 {
-    let connection = connection(user)?;
+    pub fn new(user: &User) -> Self
+    {
+        let connection = DbService::connection(user).unwrap();
 
-    let query = sql::<Text>("show databases");
-    let mut result = query.load::<String>(&connection)
-        .map_err(|err| Error::from(err))?;
-
-    if let Some(index) = result.iter().position(|db_name| db_name == "information_schema") {
-        result.remove(index);
+        DbService {
+            connection
+        }
     }
 
-    Ok(result)
+    pub fn connection(user: &User) -> Result<MysqlConnection, Error>
+    {
+        let connection_url = format!(
+            "{}://{}:{}@{}/",
+            Config::idem().db.driver,
+            percent_encode(user.name.as_ref(), USERINFO_ENCODE_SET),
+            percent_encode(user.password.as_ref(), USERINFO_ENCODE_SET),
+            Config::idem().db.host
+        );
+
+        MysqlConnection::establish(&connection_url)
+            .map_err(|err| Error::from(err))
+    }
+
+    pub fn list(&self) -> Result<Vec<String>, Error>
+    {
+        let query = sql::<Text>("show databases");
+        let mut result = query.load::<String>(&self.connection)
+            .map_err(|err| Error::from(err))?;
+
+        if let Some(index) = result.iter().position(|db_name| db_name == "information_schema") {
+            result.remove(index);
+        }
+
+        Ok(result)
+    }
 }
