@@ -7,18 +7,24 @@ use model::service::DbService;
 
 pub fn index(request: RequestContext) -> ResponseContext
 {
-    let user = request.user.as_ref();
-    if user.is_none() {
-        return base::redirect("/user/login");
-    }
+    base::db_user(&request, |request, _user, db_list| {
+        let ref db_name = request.uri_path_chunks[1];
 
-    let ref db_name = request.uri_path_chunks()[1];
-    println!("db: {:?}", db_name);
+        if !db_list.contains(db_name) {
+            println!("ERROR db::index - db with name '{}' is not allowed", db_name);
+            return base::redirect("/error");
+        }
 
-    base::render(&request, |_request, replacements| {
-        let title = format!("{} - {}", Config::idem().app_name, "DB entities");
-        replacements.insert("title".to_string(), to_json_value(title)?);
+        base::render(&request, |_request, replacements| {
+            let title = format!("{} - {}", Config::idem().app_name, "DB entities");
+            replacements.insert("title".to_string(), to_json_value(title)?);
+            replacements.insert("db_name".to_string(), to_json_value(db_name)?);
 
-        Ok("db/index".to_owned())
+            if db_list.len() > 1 {
+                replacements.insert("db_list".to_string(), to_json_value(&db_list)?);
+            }
+
+            Ok("db/index".to_owned())
+        })
     })
 }

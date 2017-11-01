@@ -1,11 +1,28 @@
 <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
     <div class="container">
         <a class="navbar-brand" href="/">{{ brand }}</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsMenu" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsMenu"
+                aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div id="navbarsMenu" class="collapse navbar-collapse">
-            <ul class="navbar-nav nav mr-auto"></ul>
+            <ul class="navbar-nav nav mr-auto">
+                {{# if db_name }}
+                <li class="nav-item dropdown {{# if (eq section "db") }}active{{ /if }}">
+                    <a id="dropdownDbSelectLink" class="nav-link {{# if db_list }}dropdown-toggle{{ /if }}"
+                       href="/db/{{ db_name }}" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fa fa-database"></i> <strong>{{ db_name }}</strong>
+                    </a>
+                    {{# if db_list }}
+                    <div class="dropdown-menu" aria-labelledby="dropdownDbSelectLink">
+                        {{# each db_list as |name| }}
+                        <a class="dropdown-item" href="/db/{{ name }}" tabindex="-1">{{ name }}</a>
+                        {{ /each }}
+                    </div>
+                    {{ /if }}
+                </li>
+                {{ /if }}
+            </ul>
             <ul class="navbar-nav navbar-right nav">
                 {{# if user }}
                 <li class="nav-item dropdown">

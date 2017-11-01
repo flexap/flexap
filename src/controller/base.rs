@@ -11,6 +11,8 @@ use std::error::Error;
 use view::renderer::Renderer;
 use config::Config;
 use controller::context::{RequestContext, ResponseContext};
+use model::entity::User;
+use model::service::DbService;
 
 pub fn redirect(url: &str) -> ResponseContext
 {
@@ -25,6 +27,31 @@ pub fn redirect(url: &str) -> ResponseContext
 pub fn main_redirect_response() -> ResponseContext
 {
     redirect("/")
+}
+
+pub fn db_user<A>(request: &RequestContext, action: A) -> ResponseContext
+    where A: Fn(&RequestContext, &User, Vec<String>) -> ResponseContext
+{
+    if let Some(user) = request.user.as_ref() {
+        let db = DbService::new(user);
+
+        match db.list() {
+            Ok(list) => {
+                if list.len() > 0 {
+                    action(request, user, list)
+                } else {
+                    println!("ERROR base::db_user - db.list for user \"{}\" is empty", user.name);
+                    redirect("/error")
+                }
+            },
+            Err(error) => {
+                println!("ERROR base::db_user - {}", error);
+                redirect("/error")
+            }
+        }
+    } else {
+        redirect("/user/login")
+    }
 }
 
 //pub fn get_tail_param(request: &Request, validator: Validator) -> Option<String>
@@ -76,6 +103,10 @@ pub fn replacements(request: &RequestContext) -> Result<Map<String, Value>, Box<
     let mut replacements = Map::new();
     replacements.insert("brand".to_string(), to_json(&Config::idem().app_name));
     replacements.insert("title".to_string(), to_json(&Config::idem().app_name));
+
+    if request.uri_path_chunks.len() > 0 {
+        replacements.insert("section".to_string(), to_json(&request.uri_path_chunks[0]));
+    }
 
     let ref lang = "en";
     replacements.insert("lang".to_owned(), to_json(lang));

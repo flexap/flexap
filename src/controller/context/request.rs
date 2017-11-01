@@ -12,6 +12,7 @@ pub type BodyContent = HashMap<String, String>;
 pub struct RequestContext
 {
     pub uri: Uri,
+    pub uri_path_chunks: Vec<String>,
     pub method: Method,
     pub headers: Headers,
     pub body: Option<BodyContent>,
@@ -24,9 +25,19 @@ impl RequestContext
     pub fn from_request(request: Request) -> (Self, Body)
     {
         let (method, uri, _version, headers, body) = request.deconstruct();
+        let uri_path_chunks = uri.path()[1..]
+            .split('/')
+            .map(|chunk| {
+                match percent_decode(chunk.as_bytes()).decode_utf8() {
+                    Ok(decoded) => decoded.to_string(),
+                    Err(_) => chunk.to_string()
+                }
+            })
+            .collect();
 
         (RequestContext {
             uri,
+            uri_path_chunks,
             method,
             headers,
             body: None,
@@ -48,40 +59,4 @@ impl RequestContext
     {
         self.method == Method::Post
     }
-
-    pub fn uri_path_chunks(&self) -> Vec<String>
-    {
-        self.uri.path()[1..]
-            .split('/')
-            .map(|name| {
-                match percent_decode(name.as_bytes()).decode_utf8() {
-                    Ok(decoded) => decoded.to_string(),
-                    Err(_) => name.to_string()
-                }
-            })
-            .collect()
-    }
-
-//    pub fn user(&mut self) -> Option<&User>
-//    {
-//        if self.user.is_some() {
-//            return self.user.as_ref();
-//        }
-//
-//        if let Some(ref cookie) = self.headers.get::<Cookie>() {
-//            let token = cookie.get("jwt").unwrap_or("");
-//            if !token.is_empty() {
-//                let key = Config::idem().security.cookie_key.as_ref();
-//
-//                match decode::<User>(token, key, &Validation::default()) {
-//                    Ok(token_data) => {
-//                        self.user = Some(token_data.claims);
-//                        return self.user.as_ref();
-//                    },
-//                    Err(error) => println!("Error jwt decode: {:?}", error)
-//                }
-//            }
-//        }
-//        None
-//    }
 }

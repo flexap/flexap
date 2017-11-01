@@ -25,8 +25,9 @@ pub struct ViewConfig
 {
     pub ext: String,
     pub templates_path: String,
-    pub translator_helper_name: String,
+    pub eq_helper_name: String,
     pub gravatar_helper_name: String,
+    pub translator_helper_name: String,
 }
 
 #[derive(Debug, Deserialize, Default)]

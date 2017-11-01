@@ -9,8 +9,9 @@ host = "127.0.0.1"
 [view]
 ext = ".hbs"
 templates_path = "src/view/templates"
-translator_helper_name = "t"
+eq_helper_name = "eq"
 gravatar_helper_name = "gravatar_url"
+translator_helper_name = "t"
 
 [security]
 cookie_key = "VeryLONGSecRetKeyIn32bytes000000"
