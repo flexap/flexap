@@ -21,6 +21,11 @@
                     </div>
                     {{ /if }}
                 </li>
+                <li class="nav-item {{# if (eq section "sql") }}active{{ /if }}">
+                    <a class="nav-link" href="/sql/{{ db_name }}" aria-haspopup="true" aria-expanded="false">
+                        <strong>{{t "SQL" }}</strong>
+                    </a>
+                </li>
                 {{ /if }}
             </ul>
             <ul class="navbar-nav navbar-right nav">
