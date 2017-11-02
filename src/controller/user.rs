@@ -6,7 +6,7 @@ use model::service::DbService;
 
 pub fn home(request: RequestContext) -> ResponseContext
 {
-    base::db_user(&request, |_request, _user, db_list| {
+    base::db_user(&request, |_request, _user, db_name, db_list| {
         base::redirect(&format!("/db/{}", db_list[0]))
     })
 }

@@ -5,7 +5,8 @@ use std::collections::HashMap;
 
 lazy_static! {
     static ref REGEX_ROUTES: HashMap<&'static str, Regex> = hashmap! {
-        "/db/{name}" => Regex::new("/db/[^/;\'\"`]+/?$").unwrap()
+        "/db/{name}" => Regex::new("/db/[^/;\'\"`]+/?$").unwrap(),
+        "/sql/{name}" => Regex::new("/sql/[^/;\'\"`]+/?$").unwrap()
     };
 }
 
@@ -69,6 +70,31 @@ mod tests
         };
         for (uri, is_match) in samples {
             assert_eq!(uri.is_match("/db/{name}"), is_match,
+                       "uri: {}, decoded: {}, is_match: {}", uri, decode(&uri), is_match);
+        }
+    }
+
+    #[test]
+    fn is_match_sql_name()
+    {
+        let samples = hashmap! {
+            encode("/sql/foo") => true,
+            encode("/sql/foo/") => true,
+            encode("/sql/foo_bar") => true,
+            encode("/sql/foo_bar/") => true,
+            encode("/sql/foo//") => false,
+            encode("/sql/foo/bar/") => false,
+            encode("/sql/foo;") => false,
+            encode("/sql/foo;bar") => false,
+            encode("/sql/foo\"") => false,
+            encode("/sql/foo\"bar") => false,
+            encode("/sql/foo\'") => false,
+            encode("/sql/foo\'bar") => false,
+            encode("/sql/foo`") => false,
+            encode("/sql/foo`bar") => false,
+        };
+        for (uri, is_match) in samples {
+            assert_eq!(uri.is_match("/sql/{name}"), is_match,
                        "uri: {}, decoded: {}, is_match: {}", uri, decode(&uri), is_match);
         }
     }

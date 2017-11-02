@@ -10,7 +10,8 @@
                 {{# if db_name }}
                 <li class="nav-item dropdown {{# if (eq section "db") }}active{{ /if }}">
                     <a id="dropdownDbSelectLink" class="nav-link {{# if db_list }}dropdown-toggle{{ /if }}"
-                       href="/db/{{ db_name }}" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                       href="/db/{{ db_name }}" {{# if db_list }}role="button" data-toggle="dropdown"{{ /if }}
+                       aria-haspopup="true" aria-expanded="false">
                         <i class="fa fa-database"></i> <strong>{{ db_name }}</strong>
                     </a>
                     {{# if db_list }}

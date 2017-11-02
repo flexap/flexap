@@ -50,6 +50,7 @@ impl Service for RouterService
         match request.method.clone() {
             Method::Get if uri.is_match("/") => around(request, body, user::home),
             Method::Get if uri.is_match("/db/{name}") => around(request, body, db::index),
+            Method::Get if uri.is_match("/sql/{name}") => around(request, body, db::sql),
             Method::Get if uri.is_match("/user/login") => around(request, body, user::login),
             Method::Post if uri.is_match("/user/login") => around(request, body, user::login),
             Method::Get if uri.is_match("/user/logout") => around(request, body, user::logout),

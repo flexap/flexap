@@ -27,7 +27,7 @@ pub fn main_redirect_response() -> ResponseContext
 }
 
 pub fn db_user<A>(request: &RequestContext, action: A) -> ResponseContext
-    where A: Fn(&RequestContext, &User, Vec<String>) -> ResponseContext
+    where A: Fn(&RequestContext, &User, Option<&String>, Vec<String>) -> ResponseContext
 {
     if let Some(user) = request.user.as_ref() {
         match || {
@@ -35,7 +35,17 @@ pub fn db_user<A>(request: &RequestContext, action: A) -> ResponseContext
 
             let list = db.list()?;
             if list.len() > 0 {
-                Ok(action(request, user, list))
+                let db_name = if request.uri_path_chunks.len() > 1 {
+                    Some(&request.uri_path_chunks[1])
+                } else {
+                    None
+                };
+
+                if db_name.is_some() && !list.contains(db_name.as_ref().unwrap()) {
+                    Err(From::from(format!("DB with name '{}' is not allowed", db_name.as_ref().unwrap())))
+                } else {
+                    Ok(action(request, user, db_name, list))
+                }
             } else {
                 Err(From::from("db list is empty"))
             }
