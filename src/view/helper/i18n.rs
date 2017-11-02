@@ -1,7 +1,4 @@
-use handlebars::Handlebars;
-use handlebars::RenderError;
-use handlebars::RenderContext;
-use handlebars::Helper;
+use handlebars::{Handlebars, Helper, RenderError, RenderContext};
 
 pub fn translate(helper: &Helper, _: &Handlebars, context: &mut RenderContext) -> Result<(), RenderError>
 {

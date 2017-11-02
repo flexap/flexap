@@ -1,7 +1,4 @@
-use handlebars::Handlebars;
-use handlebars::RenderError;
-use handlebars::RenderContext;
-use handlebars::Helper;
+use handlebars::{Handlebars, Helper, RenderError, RenderContext};
 use crypto::md5::Md5;
 use crypto::digest::Digest;
 
