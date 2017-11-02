@@ -30,25 +30,19 @@ pub fn db_user<A>(request: &RequestContext, action: A) -> ResponseContext
     where A: Fn(&RequestContext, &User, Vec<String>) -> ResponseContext
 {
     if let Some(user) = request.user.as_ref() {
-        let db = match DbService::new(user) {
-            Ok(db) => db,
-            Err(error) => {
-                println!("ERROR base::db_user - DbService for user \"{}\" produce error: {}", user.name, error);
-                return redirect("/error");
-            }
-        };
+        match || {
+            let db = DbService::new(user)?;
 
-        match db.list() {
-            Ok(list) => {
-                if list.len() > 0 {
-                    action(request, user, list)
-                } else {
-                    println!("ERROR base::db_user - db.list for user \"{}\" is empty", user.name);
-                    redirect("/error")
-                }
-            },
+            let list = db.list()?;
+            if list.len() > 0 {
+                Ok(action(request, user, list))
+            } else {
+                Err(From::from("db list is empty"))
+            }
+        } as Result<_, Box<Error>>() {
+            Ok(response) => response,
             Err(error) => {
-                println!("ERROR base::db_user - {}", error);
+                println!("ERROR base::db_user - for user \"{}\" produce error: {}", user.name, error);
                 redirect("/error")
             }
         }

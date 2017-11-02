@@ -1,6 +1,7 @@
 use diesel;
 
 use std::fmt;
+use std::error;
 
 #[derive(Debug)]
 pub enum Error
@@ -32,6 +33,24 @@ impl fmt::Display for Error
         match *self {
             Error::DieselResultError(ref error) => error.fmt(f),
             Error::DieselConnectionError(ref error) => error.fmt(f),
+        }
+    }
+}
+
+impl error::Error for Error
+{
+    fn description(&self) -> &str
+    {
+        match *self {
+            Error::DieselResultError(ref error) => error.description(),
+            Error::DieselConnectionError(ref error) => error.description(),
+        }
+    }
+
+    fn cause(&self) -> Option<&error::Error> {
+        match *self {
+            Error::DieselResultError(ref error) => Some(error),
+            Error::DieselConnectionError(ref error) => Some(error),
         }
     }
 }
