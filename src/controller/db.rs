@@ -1,5 +1,3 @@
-use serde_json::value::to_value as to_json_value;
-
 use super::base;
 use config::Config;
 use controller::context::{RequestContext, ResponseContext};
@@ -17,11 +15,11 @@ pub fn index(request: RequestContext) -> ResponseContext
 
         base::render(&request, |_request, replacements| {
             let title = format!("{} - {}", Config::idem().app_name, "DB entities");
-            replacements.insert("title".to_string(), to_json_value(title)?);
-            replacements.insert("db_name".to_string(), to_json_value(db_name)?);
+            replacements.insert("title", title);
+            replacements.insert("db_name", db_name);
 
             if db_list.len() > 1 {
-                replacements.insert("db_list".to_string(), to_json_value(&db_list)?);
+                replacements.insert("db_list", &db_list);
             }
 
             Ok("db/index".to_owned())

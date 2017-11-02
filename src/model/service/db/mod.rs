@@ -16,13 +16,13 @@ pub struct DbService
 
 impl DbService
 {
-    pub fn new(user: &User) -> Self
+    pub fn new(user: &User) -> Result<Self, Error>
     {
-        let connection = DbService::connection(user).unwrap();
+        let connection = DbService::connection(user)?;
 
-        DbService {
+        Ok(DbService {
             connection
-        }
+        })
     }
 
     pub fn connection(user: &User) -> Result<MysqlConnection, Error>

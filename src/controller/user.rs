@@ -1,5 +1,3 @@
-use serde_json::value::to_value as to_json_value;
-
 use super::base;
 use config::Config;
 use controller::context::{RequestContext, ResponseContext};
@@ -23,17 +21,18 @@ pub fn login(request: RequestContext) -> ResponseContext
 
     if request.is_post() && request.body.is_some() {
         let user = LoginFormDto::from(request.body.as_ref().unwrap()).user();
-        let db = DbService::new(&user);
-
-        match db.list() {
-            Ok(list) => {
-                let mut response = if list.len() > 0 {
-                    base::redirect(&format!("/db/{}", list[0]))
-                } else {
-                    base::main_redirect_response()
-                };
-                response.user = Some(user);
-                return response;
+        match DbService::new(&user) {
+            Ok(db) =>  match db.list() {
+                Ok(list) => {
+                    let mut response = if list.len() > 0 {
+                        base::redirect( & format ! ("/db/{}", list[0]))
+                    } else {
+                        base::main_redirect_response()
+                    };
+                    response.user = Some(user);
+                    return response;
+                },
+                Err(error) => errors.push(format!("{}", error))
             },
             Err(error) => errors.push(format!("{}", error))
         }
@@ -41,13 +40,9 @@ pub fn login(request: RequestContext) -> ResponseContext
 
     base::render(&request, |_request, replacements| {
         let title = format!("{} - {}", Config::idem().app_name, "Sign In");
-        replacements.insert("title".to_string(), to_json_value(title)?);
-        replacements.insert("form_name".to_string(), to_json_value(LoginFormDto::form_name())?);
-
-        replacements.insert(
-            "errors".to_string(),
-            to_json_value(&errors)?
-        );
+        replacements.insert("title", title);
+        replacements.insert("form_name", LoginFormDto::form_name());
+        replacements.insert("errors", &errors);
 
         Ok("user/login".to_owned())
     })

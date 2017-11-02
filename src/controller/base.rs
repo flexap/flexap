@@ -1,6 +1,3 @@
-use serde_json::value::{Map, Value};
-use handlebars::to_json;
-
 use hyper::server::Response;
 use hyper::header::{ContentLength, ContentType, Header, Location};
 use hyper::StatusCode;
@@ -8,7 +5,7 @@ use mime;
 
 use std::error::Error;
 
-use view::renderer::Renderer;
+use view::renderer::{Renderer, TemplateReplacements};
 use config::Config;
 use controller::context::{RequestContext, ResponseContext};
 use model::entity::User;
@@ -33,7 +30,13 @@ pub fn db_user<A>(request: &RequestContext, action: A) -> ResponseContext
     where A: Fn(&RequestContext, &User, Vec<String>) -> ResponseContext
 {
     if let Some(user) = request.user.as_ref() {
-        let db = DbService::new(user);
+        let db = match DbService::new(user) {
+            Ok(db) => db,
+            Err(error) => {
+                println!("ERROR base::db_user - DbService for user \"{}\" produce error: {}", user.name, error);
+                return redirect("/error");
+            }
+        };
 
         match db.list() {
             Ok(list) => {
@@ -73,7 +76,7 @@ pub fn db_user<A>(request: &RequestContext, action: A) -> ResponseContext
 //}
 
 pub fn render<A>(request: &RequestContext, action: A) -> ResponseContext
-    where A: Fn(&RequestContext, &mut Map<String, Value>) -> Result<String, Box<Error>>
+    where A: Fn(&RequestContext, &mut TemplateReplacements) -> Result<String, Box<Error>>
 {
     let mut response = Response::new();
     let result = match || {
@@ -98,26 +101,26 @@ pub fn render<A>(request: &RequestContext, action: A) -> ResponseContext
     )
 }
 
-pub fn replacements(request: &RequestContext) -> Result<Map<String, Value>, Box<Error>>
+pub fn replacements(request: &RequestContext) -> Result<TemplateReplacements, Box<Error>>
 {
-    let mut replacements = Map::new();
-    replacements.insert("brand".to_string(), to_json(&Config::idem().app_name));
-    replacements.insert("title".to_string(), to_json(&Config::idem().app_name));
+    let mut replacements = TemplateReplacements::new();
+    replacements.insert("brand", &Config::idem().app_name);
+    replacements.insert("title", &Config::idem().app_name);
 
     if request.uri_path_chunks.len() > 0 {
-        replacements.insert("section".to_string(), to_json(&request.uri_path_chunks[0]));
+        replacements.insert("section", &request.uri_path_chunks[0]);
     }
 
     let ref lang = "en";
-    replacements.insert("lang".to_owned(), to_json(lang));
+    replacements.insert("lang", lang);
 
     if let Some(ref token) = request.csrf_token {
-        replacements.insert("csrf_token".to_owned(), to_json(token));
-        //    replacements.insert("csrf_url_token".to_owned(), to_json(&url_token));
+        replacements.insert("csrf_token", token);
+        //    replacements.insert("csrf_url_token", &url_token);
     }
 
     if let Some(ref user) = request.user {
-        replacements.insert("user".to_owned(), to_json(user));
+        replacements.insert("user", user);
     }
 
     Ok(replacements)
